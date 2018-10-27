@@ -5,8 +5,10 @@ namespace CWStorage;
 
 class Application
 {
-    public function announce(): void
+    public function __invoke(): void
     {
         echo 'Hello!';
+        exit;
     }
 }
+
