@@ -4,11 +4,14 @@ declare(strict_types=1);
 use DI\ContainerBuilder;
 use CWStorage\Application;
 use Relay\Relay;
+use Zend\Diactoros\Response;
 use Zend\Diactoros\ServerRequestFactory;
+use Zend\Diactoros\Response\SapiEmitter;
 use FastRoute\RouteCollector;
 use Middlewares\FastRoute;
 use Middlewares\RequestHandler;
 use function DI\create;
+use function DI\get;
 use function FastRoute\simpleDispatcher;
 
 
@@ -19,6 +22,10 @@ $containerBuilder->useAutowiring(false);
 $containerBuilder->useAnnotations(false);
 $containerBuilder->addDefinitions([
     Application::class => create(Application::class)
+        ->constructor(get('Response')),
+    'Response' => function() {
+        return new Response();
+    },
 ]);
 
 $container = $containerBuilder->build();
@@ -30,7 +37,11 @@ $routes = simpleDispatcher(function (RouteCollector $r) {
 });
 
 $middlewareQueue[] = new FastRoute($routes);
-$middlewareQueue[] = new RequestHandler();
+$middlewareQueue[] = new RequestHandler($container);
 
 $requestHandler = new Relay($middlewareQueue);
-$requestHandler->handle(ServerRequestFactory::fromGlobals());
+$response = $requestHandler->handle(ServerRequestFactory::fromGlobals());
+
+
+$emitter = new SapiEmitter();
+$emitter->emit($response);
