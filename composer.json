@@ -1,0 +1,18 @@
+{
+    "name": "usersampler/cwstorage",
+    "description": "Sample storage",
+    "type": "project",
+    "license": "ISC",
+    "authors": [{
+        "name": "notapresent",
+        "email": "notapresent@gmail.com"
+    }],
+    "require": {
+        "php-di/php-di": "^6.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "CWStorage\\": "./"
+        }
+    }
+}
